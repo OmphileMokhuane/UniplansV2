@@ -1,40 +1,71 @@
-const users = [
-    {
-        id: 1,
-        username: "Melo",
-        password: "6May@2002"
-    },
-    {
-        id:2,
-        username: "local",
-        password: "qawsedrftg@1234"
-    }
-]
+// Functions for modules page API interaction (frontend only)
 
-const modules = [];
-const tests = [];
-const assigments = [];
-
-const formatCurrency = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-ZA');
+export async function fetchModules() {
+    const res = await fetch('/api/modules');
+    if (!res.ok) throw new Error('Failed to fetch modules');
+    return res.json();
 }
 
-const getModules = () => {
-    return modules;
+export async function addModule(module) {
+    const res = await fetch('/api/modules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(module)
+    });
+    if (!res.ok) throw new Error('Failed to add module');
+    return res.json();
 }
 
-const getModulesById = (id) => {
-    return modules.find(module => module.id === id);
+export async function updateModule(id, module) {
+    const res = await fetch(`/api/modules/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(module)
+    });
+    if (!res.ok) throw new Error('Failed to update module');
+    return res.json();
 }
 
-const addModule = (moduleData) => {
-    
+export async function deleteModule(id) {
+    const res = await fetch(`/api/modules/${id}`, {
+        method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete module');
+    return res.json();
 }
 
+// Assignments API
+export async function fetchAssignments(moduleId) {
+    const res = await fetch(`/api/modules/${moduleId}/assignments`);
+    if (!res.ok) throw new Error('Failed to fetch assignments');
+    return res.json();
+}
 
+export async function addAssignment(moduleId, assignment) {
+    const res = await fetch(`/api/modules/${moduleId}/assignments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(assignment)
+    });
+    if (!res.ok) throw new Error('Failed to add assignment');
+    return res.json();
+}
 
-export {
-    formatCurrency,
-    getModules,
-    getModulesById
-};
+export async function deleteAssignment(id) {
+    const res = await fetch(`/api/assignments/${id}`, {
+        method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete assignment');
+    return res.json();
+}
+
+// Toast notification logic
+export function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = 'toast show ' + type;
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3000);
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniplans</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modules.css">
+    <script src="https://kit.fontawesome.com/ae709c9a3a.js" crossorigin="anonymous"></script>
+    <script type="module" src="../js/modules.js"></script>
+</head>
+<body>
+    <nav class="sidebar">
+        <ul class="sidebar-main">
+            <li><span class="logo">Logo</span></li>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="#calendar">Calendar</a></li>
+            <li class="active"><a href="modules.html">Modules</a></li>
+            <li><a href="assignments.html">Assignments</a></li>
+            <li><a href="tests.html">Test & Quizzes</a></li>
+        </ul>
+        <ul class="sidebar-bottom">
+            <li><a href="settings.html">Settings</a></li>
+            <li><a href="login.html">Logout</a></li>
+        </ul>
+    </nav>
+    <main>
+        <header style="width:100%; display:flex; justify-content:flex-end;"> 
+            <div class="user">
+                <i class="fas fa-user"></i>
+                <span class="username">Omphile Mokhuane</span>
+            </div>
+        </header>
+        <section class="add-module">
+            <h2>Add New Module</h2>
+            <form id="module-form">
+                <div class="name">
+                    <label for="module-name">Module Name:</label>
+                    <input type="text" id="module-name" name="module-name" required>
+                </div>
+                <div class="code">
+                    <label for="module-code">Code:</label>
+                    <input type="text" id="module-code" name="module-code" required>
+                </div>
+
+                <div class="credits">
+                    <label for="credits">Credits:</label>
+                    <input type="number" id="credits" name="credits" required>
+                </div>
+
+                <div class="semester">
+                    <label for="semester">Semester:</label>
+                    <input type="number" id="semester" name="semester" required>
+                </div>
+                <button type="submit">Add Module</button>
+            </form>
+        </section>
+        <section class="modules-view">
+            <table class="modules-table">
+                <thead>
+                    <tr>
+                        <th>Module Name</th>
+                        <th>Code</th>
+                        <th>Credits</th>
+                        <th>Semester</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Introduction to Programming</td>
+                        <td>CS101</td>
+                        <td>3</td>
+                        <td>1</td>
+                        <td>
+                            <button class="edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Data Structures</td>
+                        <td>CS102</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>
+                            <button class="edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <!-- Add more modules as needed -->
+                </tbody>
+            </table>
+        </section>
+        <div id="toast" class="toast"></div>
+    </main>
+
+    <script type="module" src="../js/modules.js"></script>
+</body>
+</html>

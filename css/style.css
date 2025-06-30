@@ -1,0 +1,181 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto Mono";
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --background: #f4f6fb;
+    --surface: #fff;
+    --text: #222;
+    --text-secondary: #fafafa;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(21, 27, 47, 0.08);
+    --transition: 0.3s;
+    --gap-sm: 0.5rem;
+    --gap-md: 1rem;
+    --gap-lg: 1.5rem;
+    --padding: 2rem;
+    --padding-sm: 1rem;
+    --padding-md: 1.5rem;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+button, .btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+button:hover, .btn:hover {
+    background: var(--primary-dark);
+}
+input, select, textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 1.2rem;
+    font-size: 1rem;
+    background: #f9fafb;
+    color: var(--text);
+    transition: border-color var(--transition);
+}
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    background: #e5e7eb;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+.toast {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: var(--primary-dark);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(-20px);
+}
+.toast.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* === SIDEBAR === */
+.sidebar, main {
+    padding: var(--padding-sm);
+    height: 100vh;
+}
+
+.sidebar {
+    max-width: 250px;
+    background-color: var(--primary-dark);
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.sidebar-main, .sidebar-bottom {
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.sidebar .sidebar-bottom {
+    margin-top: auto;
+}
+
+.sidebar-main li, .sidebar-bottom li{
+    width: 100%;
+    padding: 1rem .5rem;
+    border-radius: 8px;
+}
+
+.sidebar-main li a, .sidebar-bottom li a{
+    color:  inherit;
+    width: 100%;
+    
+}
+
+.sidebar-main li:hover, .sidebar-bottom li:hover{
+    color: var(--text);
+    background-color: var(--background);
+    transition: all var(--transition);
+}
+
+.sidebar-main li a, .sidebar-bottom li a{
+    width: 100%;
+}
+
+.sidebar a {
+    color: var(--text-secondary);
+}
+
+/* === MAIN === */
+
+main {
+    width: 100%;
+    gap: var(--gap-md);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+main header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--padding-sm);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+header .user {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    color: var(--text-secondary);
+    background-color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
