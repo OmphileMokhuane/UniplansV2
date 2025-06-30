@@ -178,4 +178,5 @@ header .user {
     background-color: var(--primary);
     padding: 0.5rem 1rem;
     border-radius: 8px;
+    margin-left: auto;
 }

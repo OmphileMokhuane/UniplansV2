@@ -70,6 +70,7 @@
     flex-direction: row;
     gap: 2rem;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .code, .name, .credits, .semester {
@@ -87,7 +88,7 @@
     padding: var(--padding-small);
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    width: 250px;
+    width: 350px;
     cursor: pointer;
 }
 
@@ -96,10 +97,10 @@
 }
 
 #module-form button {
-    background: var(--primary-color);
+    background: var(--primary);
     color: #fff;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     padding: 0.1rem 1rem;
     cursor: pointer;
     transition: background 0.2s;
