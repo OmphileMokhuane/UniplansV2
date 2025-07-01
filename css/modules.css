@@ -7,7 +7,7 @@
     padding: 0;
     border-collapse: collapse;
     background: #fff;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(44,62,80,0.08);
     border-radius: 8px;
@@ -57,12 +57,9 @@
 
 .add-module h2 {
     font-size: 1rem;
-    background-color: var(--secondary-color);
     width: 100%;
-    padding: var(--padding-small);
-    color: var(--text-color);
-    border-radius: var(--border-radius);
-    
+    color: var(--text); 
+    margin-bottom: .8rem; 
 }
 
 #module-form {
@@ -76,7 +73,7 @@
 .code, .name, .credits, .semester {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--gap-small);
+    gap: var(--gap-sm);
 }
 
 #module-form label {
@@ -85,10 +82,10 @@
 }
 
 #module-form input{
-    padding: var(--padding-small);
+    padding: var(--padding-sm);
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    width: 350px;
+    width: 300px;
     cursor: pointer;
 }
 
@@ -106,6 +103,5 @@
     transition: background 0.2s;
     margin-left: auto;
     height: 3rem;
-    margin-top: auto;
     width: 150px;
 }

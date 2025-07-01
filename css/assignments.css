@@ -1,13 +1,10 @@
 /* Assignments Page Styles */
 .assignments-view {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
-    padding: 2rem;
+    width: 100%;
 }
 
 .assignments-view h2 {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.8rem;
     color: var(--secondary-color);
 }
 
@@ -15,15 +12,16 @@
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
     border: 1px solid #d0d0d0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.8rem;
     font-size: 1rem;
+    max-width: 300px;
 }
 
 .assignments-table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(44,62,80,0.08);
     margin-top: 1rem;
@@ -36,8 +34,8 @@
 }
 
 .assignments-table th {
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--primary);
+    color: var(--text-secondary);
 }
 
 .assignments-table tr:last-child td {
@@ -47,24 +45,18 @@
 .add-assignment {
     display: grid;
     grid-template-rows: 1fr auto;
-    gap: var(--gap-medium);
-    padding: var(--padding-medium);
+    gap: var(--gap-sm);
+    padding: .5rem 1rem;
     background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 2rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
 }
 
 .add-assignment h2 {
     font-size: 1rem;
-    background-color: var(--secondary-color);
     width: 100%;
-    padding: var(--padding-small);
-    color: var(--text-color);
-    border-radius: var(--border-radius);
+    color: var(--text);
+    margin-bottom: .8rem;
 }
 
 #assignment-form {
@@ -75,18 +67,26 @@
     width: 100%;
 }
 
+.name, .description, .due-date {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-sm);
+}
+
 #assignment-form label {
     font-size: .8rem;
     color: #5b5a5a;
+    margin-bottom: 0.5rem;
 }
 
 #assignment-form input,
 #assignment-form textarea {
-    padding: var(--padding-small);
+    padding: var(--padding-sm);
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    width: 250px;
+    width: 300px;
     cursor: pointer;
+    height: 50px;
 }
 
 #assignment-form #assignment-due-date {
@@ -94,17 +94,16 @@
 }
 
 #assignment-form button[type="submit"] {
-    background: var(--primary-color);
+    background: var(--primary);
     color: #fff;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     padding: 0.1rem 1rem;
     cursor: pointer;
     transition: background 0.2s;
     margin-left: auto;
     height: 3rem;
-    margin-top: auto;
-    width: 150px;
+    width: 200px;
 }
 
 #assignment-form button[type="submit"]:hover {

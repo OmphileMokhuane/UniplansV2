@@ -120,8 +120,31 @@ input:focus, select:focus, textarea:focus {
     gap: var(--gap-md);
 }
 
+.sidebar-main li:first-child {
+    background: rgba(255, 255, 255, 0.52);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3.3px);
+    -webkit-backdrop-filter: blur(3.3px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-main li:first-child:hover {
+    background: rgba(255, 255, 255, 0.52);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3.3px);
+    -webkit-backdrop-filter: blur(3.3px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-secondary);
+}
+
+/* .sidebar-bottom li:first-child {
+    border-top: 1px solid #ccc;
+} */
+
 .sidebar .sidebar-bottom {
     margin-top: auto;
+    border-top: 1px solid #ccc;
+    padding-top: var(--padding-sm);
 }
 
 .sidebar-main li, .sidebar-bottom li{

@@ -1,8 +1,8 @@
 import {
-  fetchModules,
-  fetchAssignments,
-  addAssignment,
-  deleteAssignment
+	fetchModules,
+	fetchAssignments,
+	addAssignment,
+	deleteAssignment
 } from './app.js';
 
 const moduleSelect = document.getElementById('module-select');
@@ -15,66 +15,66 @@ assignmentModuleSelect.required = true;
 
 // Insert module select into the assignment form
 assignmentForm.insertBefore(
-  (() => {
-    const div = document.createElement('div');
-    const label = document.createElement('label');
-    label.setAttribute('for', 'assignment-module-select');
-    label.textContent = 'Module:';
-    div.appendChild(label);
-    div.appendChild(assignmentModuleSelect);
-    return div;
-  })(),
-  assignmentForm.firstChild
+	(() => {
+		const div = document.createElement('div');
+		const label = document.createElement('label');
+		label.setAttribute('for', 'assignment-module-select');
+		label.textContent = 'Module:';
+		div.appendChild(label);
+		div.appendChild(assignmentModuleSelect);
+		return div;
+	})(),
+	assignmentForm.firstChild
 );
 
 let currentModuleId = null;
 let modulesList = [];
 
 function renderAssignments(assignments) {
-  assignmentsTableBody.innerHTML = '';
-  assignments.forEach(a => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${a.title}</td>
-      <td>${a.due_date ? a.due_date : ''}</td>
-      <td>${a.description ? a.description : ''}</td>
-      <td><button class="delete-btn" data-id="${a.id}">Delete</button></td>
-    `;
-    assignmentsTableBody.appendChild(tr);
-  });
+	assignmentsTableBody.innerHTML = '';
+	assignments.forEach(a => {
+		const tr = document.createElement('tr');
+		tr.innerHTML = `
+		<td>${a.title}</td>
+		<td>${a.due_date ? a.due_date : ''}</td>
+		<td>${a.description ? a.description : ''}</td>
+		<td><button class="delete-btn" data-id="${a.id}">Delete</button></td>
+		`;
+		assignmentsTableBody.appendChild(tr);
+	});
 }
 
 async function loadAssignments() {
-  if (!currentModuleId) return;
-  try {
-    const assignments = await fetchAssignments(currentModuleId);
-    renderAssignments(assignments);
-  } catch (err) {
-    alert('Failed to load assignments: ' + err.message);
-  }
+	if (!currentModuleId) return;
+	try {
+		const assignments = await fetchAssignments(currentModuleId);
+		renderAssignments(assignments);
+	} catch (err) {
+		alert('Failed to load assignments: ' + err.message);
+	}
 }
 
 async function loadModules() {
-  try {
-    const modules = await fetchModules();
-    modulesList = modules;
-    moduleSelect.innerHTML = '';
-    assignmentModuleSelect.innerHTML = '';
-    modules.forEach(m => {
-      const option1 = document.createElement('option');
-      option1.value = m.id;
-      option1.textContent = m.name;
-      moduleSelect.appendChild(option1);
-      const option2 = document.createElement('option');
-      option2.value = m.id;
-      option2.textContent = m.name;
-      assignmentModuleSelect.appendChild(option2);
+  	try {
+		const modules = await fetchModules();
+		modulesList = modules;
+		moduleSelect.innerHTML = '';
+		assignmentModuleSelect.innerHTML = '';
+		modules.forEach(m => {
+		const option1 = document.createElement('option');
+		option1.value = m.id;
+		option1.textContent = m.name;
+		moduleSelect.appendChild(option1);
+		const option2 = document.createElement('option');
+		option2.value = m.id;
+		option2.textContent = m.name;
+		assignmentModuleSelect.appendChild(option2);
     });
     if (modules.length > 0) {
-      currentModuleId = modules[0].id;
-      moduleSelect.value = currentModuleId;
-      assignmentModuleSelect.value = currentModuleId;
-      loadAssignments();
+		currentModuleId = modules[0].id;
+		moduleSelect.value = currentModuleId;
+		assignmentModuleSelect.value = currentModuleId;
+		loadAssignments();
     }
   } catch (err) {
     alert('Failed to load modules: ' + err.message);

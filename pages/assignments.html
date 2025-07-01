@@ -31,6 +31,24 @@
                 <span class="username">John Doe</span>
             </div>
         </header>
+        <section class="add-assignment">
+            <h2>Add Assignment</h2>
+            <form id="assignment-form">
+                <div class="name">
+                    <label for="assignment-title">Title:</label>
+                    <input type="text" id="assignment-title" name="assignment-title" required>
+                </div>
+                <div class="due-date">
+                    <label for="assignment-due-date">Due Date:</label>
+                    <input type="date" id="assignment-due-date" name="assignment-due-date">
+                </div>
+                <div class="description">
+                    <label for="assignment-description">Description:</label>
+                    <textarea id="assignment-description" name="assignment-description"></textarea>
+                </div>
+                <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Assignment</button>
+            </form>
+        </section>
         <section class="assignments-view">
             <h2>Assignments</h2>
             <div>
@@ -51,24 +69,7 @@
                 </tbody>
             </table>
         </section>
-        <section class="add-assignment">
-            <h2>Add Assignment</h2>
-            <form id="assignment-form">
-                <div>
-                    <label for="assignment-title">Title:</label>
-                    <input type="text" id="assignment-title" name="assignment-title" required>
-                </div>
-                <div>
-                    <label for="assignment-due-date">Due Date:</label>
-                    <input type="date" id="assignment-due-date" name="assignment-due-date">
-                </div>
-                <div>
-                    <label for="assignment-description">Description:</label>
-                    <textarea id="assignment-description" name="assignment-description"></textarea>
-                </div>
-                <button type="submit"><i class="fas fa-plus"></i> Add Assignment</button>
-            </form>
-        </section>
+        
         <div id="toast" class="toast"></div>
     </main>
 </body>
