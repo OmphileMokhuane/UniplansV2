@@ -10,7 +10,14 @@
     <script type="module" src="../js/assignments.js"></script>
 </head>
 <body>
-    <nav class="sidebar">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open sidebar">
+        <span class="hamburger" id="hamburger">
+            <span class="hamburger-bar bar1"></span>
+            <span class="hamburger-bar bar2"></span>
+            <span class="hamburger-bar bar3"></span>
+        </span>
+    </button>
+    <nav class="sidebar" id="sidebar">
         <ul class="sidebar-main">
             <li><span class="logo">Logo</span></li>
             <li><a href="../index.html">Home</a></li>
@@ -72,5 +79,25 @@
         
         <div id="toast" class="toast"></div>
     </main>
+    <script>
+    // Sidebar toggle logic
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('sidebar-open');
+        document.body.classList.toggle('sidebar-open');
+        hamburger.classList.toggle('active');
+    });
+    // Close sidebar when clicking outside (mobile)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth > 900) return;
+        if (!sidebar.contains(e.target) && e.target !== sidebarToggle && !sidebarToggle.contains(e.target) && sidebar.classList.contains('sidebar-open')) {
+            sidebar.classList.remove('sidebar-open');
+            document.body.classList.remove('sidebar-open');
+            hamburger.classList.remove('active');
+        }
+    });
+    </script>
 </body>
 </html>

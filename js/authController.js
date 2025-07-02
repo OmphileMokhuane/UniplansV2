@@ -38,7 +38,17 @@ function setupLogout() {
     });
 }
 
+async function checkLoggedIn() {
+    try {
+        const res = await fetch('/api/me');
+        if (res.ok) {
+            window.location.href = '/index.html';
+        }
+    } catch (e) {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    checkLoggedIn();
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const loginSection = document.querySelector('.login-section');
