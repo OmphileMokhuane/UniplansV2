@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uniplans</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
     <script src="https://kit.fontawesome.com/ae709c9a3a.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <nav class="sidebar">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open sidebar">
+        <span class="hamburger" id="hamburger">
+            <span class="hamburger-bar bar1"></span>
+            <span class="hamburger-bar bar2"></span>
+            <span class="hamburger-bar bar3"></span>
+        </span>
+    </button>
+    <nav class="sidebar" id="sidebar">
         <ul class="sidebar-main">
             <li><span class="logo">Logo</span></li>
             <li class="active"><a href="index.html">Home</a></li>
@@ -29,7 +37,54 @@
                 <span class="username">Omphile Mokhuane</span>
             </div>
         </header>
+        <section class="dashboard">
+            <div class="dashboard-cards">
+                <div class="dashboard-card" id="card-assignments">
+                    <div class="card-icon"><i class="fas fa-tasks"></i></div>
+                    <div class="card-title">Upcoming Assignments</div>
+                    <ul class="card-list" id="list-assignments"></ul>
+                </div>
+                <div class="dashboard-card" id="card-tests">
+                    <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="card-title">Upcoming Tests/Quizzes</div>
+                    <ul class="card-list" id="list-tests"></ul>
+                </div>
+                <div class="dashboard-card" id="card-events">
+                    <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="card-title">Upcoming Events</div>
+                    <ul class="card-list" id="list-events"></ul>
+                </div>
+            </div>
+            <div class="dashboard-links">
+                <a class="dashboard-link" href="/pages/calendar.html"><i class="fas fa-calendar"></i> Calendar</a>
+                <a class="dashboard-link" href="/pages/modules.html"><i class="fas fa-book"></i> Modules</a>
+                <a class="dashboard-link" href="/pages/assignments.html"><i class="fas fa-tasks"></i> Assignments</a>
+                <a class="dashboard-link" href="/pages/tests.html"><i class="fas fa-clipboard-list"></i> Tests & Quizzes</a>
+                <a class="dashboard-link" href="/pages/settings.html"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </section>
         <div id="toast" class="toast"></div>
     </main>
+    <script type="module" src="./js/dashboard.js"></script>
+    <script>
+    // Sidebar toggle logic
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('sidebar-open');
+        document.body.classList.toggle('sidebar-open');
+        hamburger.classList.toggle('active');
+    });
+    // Close sidebar when clicking outside (mobile)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth > 900) return;
+        if (!sidebar.contains(e.target) && e.target !== sidebarToggle && !sidebarToggle.contains(e.target) && sidebar.classList.contains('sidebar-open')) {
+            sidebar.classList.remove('sidebar-open');
+            document.body.classList.remove('sidebar-open');
+            hamburger.classList.remove('active');
+        }
+    });
+    </script>
 </body>
 </html>

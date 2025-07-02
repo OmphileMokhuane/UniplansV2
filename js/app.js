@@ -58,6 +58,31 @@ export async function deleteAssignment(id) {
     return res.json();
 }
 
+// Tests/Quizzes API
+export async function fetchTests(moduleId) {
+    const res = await fetch(`/api/modules/${moduleId}/tests`);
+    if (!res.ok) throw new Error('Failed to fetch tests');
+    return res.json();
+}
+
+export async function addTest(moduleId, test) {
+    const res = await fetch(`/api/modules/${moduleId}/tests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(test)
+    });
+    if (!res.ok) throw new Error('Failed to add test');
+    return res.json();
+}
+
+export async function deleteTest(id) {
+    const res = await fetch(`/api/tests/${id}`, {
+        method: 'DELETE'
+    });
+    if (!res.ok) throw new Error('Failed to delete test');
+    return res.json();
+}
+
 // Toast notification logic
 export function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');

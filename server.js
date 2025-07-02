@@ -2,6 +2,8 @@
 const express = require('express');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,12 +41,35 @@ const db = new sqlite3.Database(dbPath, (err) => {
             description TEXT,
             FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE
         )`);
+        // Create events table
+        db.run(`CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            date TEXT NOT NULL,
+            description TEXT
+        )`);
+        // Create users table
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )`);
         console.log('All tables are ready.');
     }
 });
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
+
+// Add session middleware
+app.use(session({
+    secret: 'uniplans_secret_key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 } // 1 day
+}));
 
 // API: Get all modules
 app.get('/api/modules', (req, res) => {
@@ -193,6 +218,107 @@ app.delete('/api/tests/:id', (req, res) => {
         } else {
             res.json({ success: true });
         }
+    });
+});
+
+// API: Get all events
+app.get('/api/events', (req, res) => {
+    db.all('SELECT * FROM events', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json(rows);
+        }
+    });
+});
+
+// API: Add a new event
+app.post('/api/events', (req, res) => {
+    const { title, date, description } = req.body;
+    if (!title || !date) {
+        return res.status(400).json({ error: 'Title and date are required.' });
+    }
+    db.run(
+        'INSERT INTO events (title, date, description) VALUES (?, ?, ?)',
+        [title, date, description],
+        function (err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+            } else {
+                res.status(201).json({ id: this.lastID, title, date, description });
+            }
+        }
+    );
+});
+
+// API: Delete an event
+app.delete('/api/events/:id', (req, res) => {
+    const { id } = req.params;
+    db.run('DELETE FROM events WHERE id = ?', [id], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else if (this.changes === 0) {
+            res.status(404).json({ error: 'Event not found.' });
+        } else {
+            res.json({ success: true });
+        }
+    });
+});
+
+// API: Register new user
+app.post('/api/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+    const hash = await bcrypt.hash(password, 10);
+    db.run(
+        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+        [username, email, hash],
+        function (err) {
+            if (err) {
+                res.status(400).json({ error: 'Username or email already exists.' });
+            } else {
+                req.session.userId = this.lastID;
+                res.status(201).json({ id: this.lastID, username, email });
+            }
+        }
+    );
+});
+
+// API: Login
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+        if (err || !user) {
+            return res.status(401).json({ error: 'Invalid username or password.' });
+        }
+        const match = await bcrypt.compare(password, user.password_hash);
+        if (!match) {
+            return res.status(401).json({ error: 'Invalid username or password.' });
+        }
+        req.session.userId = user.id;
+        res.json({ id: user.id, username: user.username, email: user.email });
+    });
+});
+
+// API: Logout
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.json({ success: true });
+    });
+});
+
+// API: Get current user
+app.get('/api/me', (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not logged in.' });
+    db.get('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(401).json({ error: 'Not logged in.' });
+        res.json(user);
     });
 });
 

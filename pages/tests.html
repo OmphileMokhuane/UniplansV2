@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tests & Quizzes - Uniplans</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/tests.css">
     <script src="https://kit.fontawesome.com/ae709c9a3a.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -12,28 +13,63 @@
         <ul class="sidebar-main">
             <li><span class="logo">Logo</span></li>
             <li><a href="../index.html">Home</a></li>
-            <li><a href="#calendar">Calendar</a></li>
-            <li><a href="modules.html">Modules</a></li>
-            <li><a href="assignments.html">Assignments</a></li>
-            <li class="active"><a href="tests.html">Test & Quizzes</a></li>
+            <li><a href="/pages/calendar.html">Calendar</a></li>
+            <li><a href="/pages/modules.html">Modules</a></li>
+            <li><a href="/pages/assignments.html">Assignments</a></li>
+            <li class="active"><a href="/pages/tests.html">Test & Quizzes</a></li>
         </ul>
         <ul class="sidebar-bottom">
-            <li><a href="settings.html">Settings</a></li>
-            <li><a href="login.html">Logout</a></li>
+            <li><a href="/pages/settings.html">Settings</a></li>
+            <li><a href="/pages/login.html">Logout</a></li>
         </ul>
     </nav>
     <main>
         <header style="width:100%; display:flex; justify-content:flex-end;"> 
             <div class="user">
                 <i class="fas fa-user"></i>
-                <span class="username">John Doe</span>
+                <span class="username">Omphile Mokhuane</span>
             </div>
         </header>
-        <section>
+        <section class="add-test">
+            <h2>Add Test/Quiz</h2>
+            <form id="test-form">
+                <div class="name">
+                    <label for="test-title">Title:</label>
+                    <input type="text" id="test-title" name="test-title" required>
+                </div>
+                <div class="date">
+                    <label for="test-date">Date:</label>
+                    <input type="date" id="test-date" name="test-date">
+                </div>
+                <div class="description">
+                    <label for="test-description">Description:</label>
+                    <textarea id="test-description" name="test-description"></textarea>
+                </div>
+                <button class="btn" type="submit"><i class="fas fa-plus"></i> Add Test/Quiz</button>
+            </form>
+        </section>
+        <section class="tests-view">
             <h2>Tests & Quizzes</h2>
-            <p>This is the tests and quizzes page.</p>
+            <div>
+                <label for="test-module-select">Module:</label>
+                <select id="test-module-select"></select>
+            </div>
+            <table class="tests-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Tests will be rendered here -->
+                </tbody>
+            </table>
         </section>
         <div id="toast" class="toast"></div>
     </main>
+    <script type="module" src="../js/test.js"></script>
 </body>
 </html>

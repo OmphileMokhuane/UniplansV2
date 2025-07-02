@@ -1,0 +1,87 @@
+/* Styles for Tests & Quizzes page */
+.tests-view {
+    width: 100%;
+}
+
+.tests-table {
+    width: 100%;
+    padding: 0;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    border-radius: 8px;
+}
+
+.tests-table th, .tests-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tests-table th {
+    background: var(--primary);
+    color: var(--text-secondary);
+}
+
+.tests-table tr:last-child td {
+    border-bottom: none;
+}
+
+.add-test {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: var(--gap-sm);
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.add-test h2 {
+    font-size: 1rem;
+    width: 100%;
+    color: var(--text);
+    margin-bottom: .8rem;
+}
+
+.name, .date, .description {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-sm);
+}
+
+#test-form {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#test-form label {
+    font-size: .8rem;
+    color: #5b5a5a;
+}
+
+#test-form input, #test-form textarea {
+    padding: var(--padding-sm);
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    width: 300px;
+    cursor: pointer;
+}
+
+#test-form button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.1rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: auto;
+    height: 3rem;
+    width: 150px;
+}

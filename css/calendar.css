@@ -1,4 +1,3 @@
-
 .calendar-view {
     width: 100%;
     height: 100%;
@@ -133,6 +132,8 @@
     color: #fff;
     font-weight: 700;
     box-shadow: 0 0 0 2px #ffb6c1;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .calendar__day.inactive .calendar__date,
@@ -168,4 +169,101 @@
     background: #e3eafe;
     color: #222;
     outline: 1px solid #a3bffa;
+}
+
+.calendar__task--empty {
+    color: #837f7f !important;
+    background: #f3f3f3 !important;
+    font-style: italic;
+}
+
+/* Modal styles */
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.3);
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+    min-width: 300px;
+    max-width: 90vw;
+    position: relative;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+#add-event-btn {
+    margin: 1rem 0;
+    width: 100%;
+    background: var(--primary, #ffb6c1);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#add-event-btn:hover {
+    background: #ff8fa3;
+}
+.month-cont, .year-cont {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+.month-cont button, .year-cont button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #888;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.month-cont button:hover, .year-cont button:hover {
+    background: #f0f4ff;
+    color: #222;
+}
+#calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 300px;
+}
+.calendar__day.selected {
+    outline: 2px solid #a3bffa;
+    background: #e3eafe;
+    z-index: 2;
+}
+@media (max-width: 900px) {
+    .calendar-view {
+        grid-template-columns: 1fr;
+    }
+    .calendar-sidebar {
+        margin-bottom: 1rem;
+    }
 }

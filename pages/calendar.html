@@ -35,11 +35,18 @@
             <aside class="calendar-sidebar">
                 <h2>
                     <div class="month-cont">
-                        <span class="day" id="day">1</span>
+                        <button id="prev-month" aria-label="Previous Month">&#8592;</button>
                         <span class="month" id="month">July</span>
+                        <button id="next-month" aria-label="Next Month">&#8594;</button>
                     </div>
-                    <span class="year" id="year">2025</span>
+                    <div class="year-cont">
+                        <button id="prev-year" aria-label="Previous Year">&#8592;</button>
+                        <span class="year" id="year">2025</span>
+                        <button id="next-year" aria-label="Next Year">&#8594;</button>
+                    </div>
+                    <span class="day" id="day">1</span>
                 </h2>
+                <button id="add-event-btn" class="btn">+ Add Event</button>
                 <ul class="day-list-items">
                     <!-- Events for the selected day will be dynamically rendered here by calendar.js -->
                 </ul>
@@ -54,163 +61,27 @@
                     <span class="top-bar__days">Sat</span>
                     <span class="top-bar__days">Sun</span>
                 </section>
-                
-                <section class="calendar__week">
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">30</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">31</span>
-                        <span class="calendar__task">4</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">1</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">2</span>
-                        <span class="calendar__task">3</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">3</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">4</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">5</span>
-                        <span class="calendar__task">4</span>
-                    </div>
-                </section>
-
-                <section class="calendar__week">
-                    <div class="calendar__day">
-                        <span class="calendar__date">6</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">7</span>
-                        <span class="calendar__task">3</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">8</span>
-                        <span class="calendar__task">3</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">9</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">10</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">11</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">12</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                </section>
-
-                <section class="calendar__week">
-                    <div class="calendar__day">
-                        <span class="calendar__date">13</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">14</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day today">
-                        <span class="calendar__date">15</span>
-                        <span class="calendar__task calendar__task--today">4 items</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">16</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">17</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">18</span>
-                        <span class="calendar__task">4</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">19</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                </section>
-
-                <section class="calendar__week">
-                    <div class="calendar__day">
-                        <span class="calendar__date">20</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">21</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">22</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">23</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">24</span>
-                        <span class="calendar__task">5</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">25</span>
-                        <span class="calendar__task">3</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">26</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                </section>
-
-                <section class="calendar__week">
-                    <div class="calendar__day">
-                        <span class="calendar__date">27</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day">
-                        <span class="calendar__date">28</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">1</span>
-                        <span class="calendar__task">2</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">2</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">3</span>
-                        <span class="calendar__task">5</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">4</span>
-                        <span class="calendar__task">3</span>
-                    </div>
-                    <div class="calendar__day inactive">
-                        <span class="calendar__date">5</span>
-                        <span class="calendar__task">1</span>
-                    </div>
-                </section>
+                <div id="calendar-grid">
+                    <!-- Calendar days will be dynamically generated here -->
+                </div>
             </div>        
         </section>
+        <!-- Event Creation Modal -->
+        <div id="event-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" id="close-modal">&times;</span>
+                <h3>Add Event</h3>
+                <form id="event-form">
+                    <label for="event-title">Title:</label>
+                    <input type="text" id="event-title" name="event-title" required>
+                    <label for="event-date">Date:</label>
+                    <input type="date" id="event-date" name="event-date" required>
+                    <label for="event-description">Description:</label>
+                    <textarea id="event-description" name="event-description"></textarea>
+                    <button type="submit" class="btn">Add Event</button>
+                </form>
+            </div>
+        </div>
         <div id="toast" class="toast"></div>
     </main>
     <script type="module" src="/js/calendar.js"></script>
