@@ -1,5 +1,4 @@
-// Functions for modules page API interaction (frontend only)
-
+// Modules API
 export async function fetchModules() {
     const res = await fetch('/api/modules');
     if (!res.ok) throw new Error('Failed to fetch modules');

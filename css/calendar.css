@@ -1,0 +1,171 @@
+
+.calendar-view {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: var(--gap-md);
+    background: #f8f9fa;
+    min-height: 80vh;
+}
+
+
+.calendar-content, .calendar-sidebar {
+    padding: var(--padding-sm);
+}
+
+.calendar-sidebar {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(200, 200, 200, 0.3);
+    transition: box-shadow 0.2s;
+}
+
+.calendar-sidebar h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--gap-md);
+    width: 100%;
+    height: auto;
+    color: #333;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.52);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(3.3px);
+    -webkit-backdrop-filter: blur(3.3px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: var(--padding-sm);
+}
+
+
+.calendar-sidebar .day-list-items {
+    list-style: none;
+    padding: var(--padding-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+}
+
+
+.day-list-items .item {
+    margin: var(--gap-sm) 0;
+}
+
+/*Calendar days*/
+
+.calendar-content {
+    display: flex;
+    flex-flow: column wrap;
+    align-items: stretch;
+    width: 100%;
+    float: none;
+    height: 100%;
+    padding: 0.8rem 0 1rem 1rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+
+
+.calendar__top-bar {
+    display: flex;
+    flex: 32px 0 0;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    background-color: var(--primary);
+    border-radius: 8px;
+}
+
+
+.top-bar__days {
+    width: 100%;
+    padding: 0 0.5rem;
+    color: #222;
+    font-size: 1rem;
+    font-weight: 500;
+    -webkit-font-smoothing: subpixel-antialiased;
+    color: var(--text-secondary);
+}
+
+
+.calendar__week {
+    display: flex;
+    flex: 1 1 0;
+    gap: 0.5rem;
+}
+
+
+.calendar__day {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1.9rem 0.2rem 0.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.calendar__day:hover, .calendar__day:focus {
+    background: #f0f4ff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    outline: 2px solid #a3bffa;
+    z-index: 1;
+}
+
+
+.calendar__date {
+    color: #222;
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 0.7;
+    padding: 0.3em 0.7em;
+    transition: background 0.2s, color 0.2s;
+}
+
+.calendar__day.today .calendar__date {
+    background: #ffb6c1;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px #ffb6c1;
+}
+
+.calendar__day.inactive .calendar__date,
+.calendar__day.inactive .task-count {
+    color: #c6c6c6;
+}
+
+
+.calendar__task {
+    color: #333;
+    display: flex;
+    font-size: 0.8rem;
+    align-items: center;
+    margin-bottom: 0.2rem;
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    transition: background 0.2s, color 0.2s;
+}
+
+@media screen and (min-width:55em) {
+    .calendar__task {
+        font-size: 1rem;
+    }
+}
+
+.calendar__task.calendar__task--today {
+    background: #ffb6c1;
+    color: #fff;
+    font-weight: 600;
+}
+
+.calendar__task:hover, .calendar__task:focus {
+    background: #e3eafe;
+    color: #222;
+    outline: 1px solid #a3bffa;
+}
