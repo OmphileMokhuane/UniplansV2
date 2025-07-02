@@ -27,6 +27,17 @@ async function register(username, email, password) {
     return await res.json();
 }
 
+// Logout logic
+function setupLogout() {
+    document.querySelectorAll('a[href$="login.html"], a.logout').forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/pages/login.html';
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
@@ -86,4 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
             registerError.textContent = err.message;
         }
     };
+
+    setupLogout();
 });

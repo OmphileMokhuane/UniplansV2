@@ -1,0 +1,168 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto Mono";
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --background: #f4f6fb;
+    --surface: #fff;
+    --text: #222;
+    --text-secondary: #fafafa;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(21, 27, 47, 0.08);
+    --transition: 0.3s;
+    --gap-sm: 0.5rem;
+    --gap-md: 1rem;
+    --gap-lg: 1.5rem;
+    --padding: 2rem;
+    --padding-sm: 1rem;
+    --padding-md: 1.5rem;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f4f6fb 100%);
+}
+
+main {
+    width: 100%;
+    gap: var(--gap-md);
+    display: flex;
+    flex-direction: column;
+}
+
+main header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--padding-sm);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 200px;
+}
+
+header .user {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    color: var(--text-secondary);
+    background-color: var(--primary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin-left: auto;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-logo {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* Login/Register page styles */
+.login-section, .register-section {
+    max-width: 400px;
+    margin: 0 auto 1.5rem auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(21, 27, 47, 0.10);
+    padding: 2.2rem 2.5rem 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    z-index: 2;
+}
+.login-section h2, .register-section h2 {
+    text-align: center;
+    color: var(--primary-dark);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.5px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.2rem;
+}
+.form-group label {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+.form-group input {
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    color: #222;
+    transition: border-color 0.2s;
+}
+.form-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+.btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+.btn:hover {
+    background: var(--primary-dark);
+}
+#login-error, #register-error {
+    color: #c00;
+    margin-top: 1rem;
+    text-align: center;
+    min-height: 1.2em;
+}
+.login-section p, .register-section p {
+    text-align: center;
+    margin-top: 1.2rem;
+    color: #555;
+}
+.login-section a, .register-section a {
+    color: var(--primary);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+}
+@media (max-width: 600px) {
+    .login-section, .register-section {
+        max-width: 98vw;
+        padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+    }
+    .login-logo {
+        font-size: 1.5rem;
+    }
+}

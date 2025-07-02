@@ -204,41 +204,6 @@ header .user {
     margin-left: auto;
 }
 
-.login-section, .register-section {
-    max-width: 400px;
-    margin: 2rem auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 2rem 2.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.2rem;
-}
-.form-group label {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-.form-group input {
-    font-size: 1rem;
-    padding: 0.7rem 1rem;
-    border-radius: 8px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
-    color: #222;
-    transition: border-color 0.2s;
-}
-.form-group input:focus {
-    border-color: var(--primary);
-    outline: none;
-}
-
 /* Sidebar toggle for mobile */
 .sidebar-toggle {
     display: none;
