@@ -85,7 +85,7 @@
     padding: var(--padding-sm);
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    width: 300px;
+    width: 250px;
     cursor: pointer;
 }
 

@@ -1,3 +1,20 @@
+
+// Redirect to login if not authenticated and set username in header
+async function checkAuthAndSetUser() {
+    try {
+        const res = await fetch('/api/me');
+        if (!res.ok) {
+            window.location.href = '/pages/login.html';
+        } else {
+            const user = await res.json();
+            document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+        }
+    } catch (e) {
+        window.location.href = '/pages/login.html';
+    }
+}
+checkAuthAndSetUser();
+
 import { fetchModules, fetchAssignments, fetchTests } from './app.js';
 
 // Fetch all events from the API
