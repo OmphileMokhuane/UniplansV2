@@ -1,71 +1,14 @@
 const express = require('express');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Connect to SQLite database and create tables if not exist
-const dbPath = path.join(__dirname, 'uniplans.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Failed to connect to database:', err.message);
-    } else {
-        console.log('Connected to uniplans.db');
-        // Create modules table (add user_id)
-        db.run(`CREATE TABLE IF NOT EXISTS modules (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            code TEXT NOT NULL,
-            credits INTEGER NOT NULL,
-            semester INTEGER NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )`);
-        // Create assignments table (add user_id)
-        db.run(`CREATE TABLE IF NOT EXISTS assignments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            module_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            due_date TEXT,
-            description TEXT,
-            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )`);
-        // Create tests table (add user_id)
-        db.run(`CREATE TABLE IF NOT EXISTS tests (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            module_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            date TEXT,
-            description TEXT,
-            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )`);
-        // Create events table (add user_id)
-        db.run(`CREATE TABLE IF NOT EXISTS events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
-            date TEXT NOT NULL,
-            description TEXT,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )`);
-        // Create users table
-        db.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            email TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )`);
-        console.log('All tables are ready.');
-    }
-});
+const supabase = createClient(process.env.SUPABASE_DB_URL, process.env.SUPABASE_KEY);
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
@@ -87,197 +30,211 @@ function requireLogin(req, res, next) {
 }
 
 // API: Get all modules (user only)
-app.get('/api/modules', requireLogin, (req, res) => {
-    db.all('SELECT * FROM modules WHERE user_id = ?', [req.session.userId], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+app.get('/api/modules', requireLogin, async (req, res) => {
+    const { data, error } = await supabase
+        .from('modules')
+        .select('*')
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.json(data);
+    }
 });
 
 // API: Add a new module
 app.use(express.json());
-app.post('/api/modules', requireLogin, (req, res) => {
+app.post('/api/modules', requireLogin, async (req, res) => {
     const { name, code, credits, semester } = req.body;
     if (!name || !code || !credits || !semester) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
-    db.run(
-        'INSERT INTO modules (user_id, name, code, credits, semester) VALUES (?, ?, ?, ?, ?)',
-        [req.session.userId, name, code, credits, semester],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.status(201).json({ id: this.lastID, name, code, credits, semester });
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('modules')
+        .insert([{ user_id: req.session.userId, name, code, credits, semester }])
+        .select();
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.status(201).json(data[0]);
+    }
 });
 
 // API: Update a module
-app.put('/api/modules/:id', requireLogin, (req, res) => {
+app.put('/api/modules/:id', requireLogin, async (req, res) => {
     const { name, code, credits, semester } = req.body;
     const { id } = req.params;
-    db.run(
-        'UPDATE modules SET name = ?, code = ?, credits = ?, semester = ? WHERE id = ? AND user_id = ?',
-        [name, code, credits, semester, id, req.session.userId],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else if (this.changes === 0) {
-                res.status(404).json({ error: 'Module not found.' });
-            } else {
-                res.json({ id, name, code, credits, semester });
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('modules')
+        .update({ name, code, credits, semester })
+        .eq('id', id)
+        .eq('user_id', req.session.userId)
+        .select();
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else if (!data || data.length === 0) {
+        res.status(404).json({ error: 'Module not found.' });
+    } else {
+        res.json(data[0]);
+    }
 });
 
 // API: Delete a module
-app.delete('/api/modules/:id', requireLogin, (req, res) => {
+app.delete('/api/modules/:id', requireLogin, async (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM modules WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Module not found.' });
-        } else {
-            res.json({ success: true });
-        }
-    });
+    const { error, count } = await supabase
+        .from('modules')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else if (count === 0) {
+        res.status(404).json({ error: 'Module not found.' });
+    } else {
+        res.json({ success: true });
+    }
 });
 
 // API: Get assignments for a module (user only)
-app.get('/api/modules/:moduleId/assignments', requireLogin, (req, res) => {
+app.get('/api/modules/:moduleId/assignments', requireLogin, async (req, res) => {
     const { moduleId } = req.params;
-    db.all('SELECT * FROM assignments WHERE module_id = ? AND user_id = ?', [moduleId, req.session.userId], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+    const { data, error } = await supabase
+        .from('assignments')
+        .select('*')
+        .eq('module_id', moduleId)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.json(data);
+    }
 });
 
 // API: Add assignment to a module (user only)
-app.post('/api/modules/:moduleId/assignments', requireLogin, (req, res) => {
+app.post('/api/modules/:moduleId/assignments', requireLogin, async (req, res) => {
     const { moduleId } = req.params;
     const { title, due_date, description } = req.body;
-    db.run(
-        'INSERT INTO assignments (user_id, module_id, title, due_date, description) VALUES (?, ?, ?, ?, ?)',
-        [req.session.userId, moduleId, title, due_date, description],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.status(201).json({ id: this.lastID, module_id: moduleId, title, due_date, description });
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('assignments')
+        .insert([{ user_id: req.session.userId, module_id: moduleId, title, due_date, description }])
+        .select();
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.status(201).json(data[0]);
+    }
 });
 
 // API: Get tests for a module (user only)
-app.get('/api/modules/:moduleId/tests', requireLogin, (req, res) => {
+app.get('/api/modules/:moduleId/tests', requireLogin, async (req, res) => {
     const { moduleId } = req.params;
-    db.all('SELECT * FROM tests WHERE module_id = ? AND user_id = ?', [moduleId, req.session.userId], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+    const { data, error } = await supabase
+        .from('tests')
+        .select('*')
+        .eq('module_id', moduleId)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.json(data);
+    }
 });
 
 // API: Add test to a module (user only)
-app.post('/api/modules/:moduleId/tests', requireLogin, (req, res) => {
+app.post('/api/modules/:moduleId/tests', requireLogin, async (req, res) => {
     const { moduleId } = req.params;
     const { title, date, description } = req.body;
-    db.run(
-        'INSERT INTO tests (user_id, module_id, title, date, description) VALUES (?, ?, ?, ?, ?)',
-        [req.session.userId, moduleId, title, date, description],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.status(201).json({ id: this.lastID, module_id: moduleId, title, date, description });
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('tests')
+        .insert([{ user_id: req.session.userId, module_id: moduleId, title, date, description }])
+        .select();
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.status(201).json(data[0]);
+    }
 });
 
 // API: Delete assignment (user only)
-app.delete('/api/assignments/:id', requireLogin, (req, res) => {
+app.delete('/api/assignments/:id', requireLogin, async (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM assignments WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Assignment not found.' });
-        } else {
-            res.json({ success: true });
-        }
-    });
+    const { error, count } = await supabase
+        .from('assignments')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else if (count === 0) {
+        res.status(404).json({ error: 'Assignment not found.' });
+    } else {
+        res.json({ success: true });
+    }
 });
 
 // API: Delete test (user only)
-app.delete('/api/tests/:id', requireLogin, (req, res) => {
+app.delete('/api/tests/:id', requireLogin, async (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM tests WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Test not found.' });
-        } else {
-            res.json({ success: true });
-        }
-    });
+    const { error, count } = await supabase
+        .from('tests')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else if (count === 0) {
+        res.status(404).json({ error: 'Test not found.' });
+    } else {
+        res.json({ success: true });
+    }
 });
 
 // API: Get all events (user only)
-app.get('/api/events', requireLogin, (req, res) => {
-    db.all('SELECT * FROM events WHERE user_id = ?', [req.session.userId], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
-    });
+app.get('/api/events', requireLogin, async (req, res) => {
+    const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.json(data);
+    }
 });
 
 // API: Add a new event (user only)
-app.post('/api/events', requireLogin, (req, res) => {
+app.post('/api/events', requireLogin, async (req, res) => {
     const { title, date, description } = req.body;
     if (!title || !date) {
         return res.status(400).json({ error: 'Title and date are required.' });
     }
-    db.run(
-        'INSERT INTO events (user_id, title, date, description) VALUES (?, ?, ?, ?)',
-        [req.session.userId, title, date, description],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.status(201).json({ id: this.lastID, title, date, description });
-            }
-        }
-    );
+    const { data, error } = await supabase
+        .from('events')
+        .insert([{ user_id: req.session.userId, title, date, description }])
+        .select();
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else {
+        res.status(201).json(data[0]);
+    }
 });
 
 // API: Delete an event (user only)
-app.delete('/api/events/:id', requireLogin, (req, res) => {
+app.delete('/api/events/:id', requireLogin, async (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM events WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else if (this.changes === 0) {
-            res.status(404).json({ error: 'Event not found.' });
-        } else {
-            res.json({ success: true });
-        }
-    });
+    const { error, count } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', req.session.userId);
+    if (error) {
+        res.status(500).json({ error: error.message });
+    } else if (count === 0) {
+        res.status(404).json({ error: 'Event not found.' });
+    } else {
+        res.json({ success: true });
+    }
 });
 
 // API: Register new user
@@ -286,38 +243,33 @@ app.post('/api/register', async (req, res) => {
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
-    const hash = await bcrypt.hash(password, 10);
-    db.run(
-        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-        [username, email, hash],
-        function (err) {
-            if (err) {
-                res.status(400).json({ error: 'Username or email already exists.' });
-            } else {
-                req.session.userId = this.lastID;
-                res.status(201).json({ id: this.lastID, username, email });
-            }
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: { username }
         }
-    );
+    });
+    if (error) {
+        res.status(400).json({ error: error.message });
+    } else {
+        req.session.userId = data.user.id;
+        res.status(201).json({ id: data.user.id, username, email });
+    }
 });
 
 // API: Login
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
-    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
-        if (err || !user) {
-            return res.status(401).json({ error: 'Invalid username or password.' });
-        }
-        const match = await bcrypt.compare(password, user.password_hash);
-        if (!match) {
-            return res.status(401).json({ error: 'Invalid username or password.' });
-        }
-        req.session.userId = user.id;
-        res.json({ id: user.id, username: user.username, email: user.email });
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) {
+        return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+    req.session.userId = data.user.id;
+    res.json({ id: data.user.id, email: data.user.email, username: data.user.user_metadata?.username });
 });
 
 // API: Change password (user only)
@@ -326,27 +278,33 @@ app.post('/api/change-password', requireLogin, async (req, res) => {
     if (!oldPassword || !newPassword) {
         return res.status(400).json({ error: 'Both old and new password are required.' });
     }
-    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
-        if (err || !user) return res.status(400).json({ error: 'User not found.' });
-        const match = await bcrypt.compare(oldPassword, user.password_hash);
-        if (!match) return res.status(401).json({ error: 'Old password is incorrect.' });
-        const hash = await bcrypt.hash(newPassword, 10);
-        db.run('UPDATE users SET password_hash = ? WHERE id = ?', [hash, req.session.userId], function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true });
-        });
+    // Get user email from Supabase
+    const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('id', req.session.userId)
+        .single();
+    if (userError || !userData) return res.status(400).json({ error: 'User not found.' });
+    // Try to sign in with old password
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: userData.email,
+        password: oldPassword
     });
+    if (signInError) return res.status(401).json({ error: 'Old password is incorrect.' });
+    // Update password
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    if (updateError) return res.status(500).json({ error: updateError.message });
+    res.json({ success: true });
 });
 
 // API: Delete account (user only)
-app.post('/api/delete-account', requireLogin, (req, res) => {
-    db.run('DELETE FROM users WHERE id = ?', [req.session.userId], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        req.session.destroy(() => {
-            res.clearCookie('connect.sid');
-            // Send redirect instruction to login page
-            res.json({ success: true, redirect: '/pages/login.html' });
-        });
+app.post('/api/delete-account', requireLogin, async (req, res) => {
+    // Delete user from Supabase Auth
+    const { error } = await supabase.auth.admin.deleteUser(req.session.userId);
+    if (error) return res.status(500).json({ error: error.message });
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.json({ success: true, redirect: '/pages/login.html' });
     });
 });
 
@@ -359,12 +317,14 @@ app.post('/api/logout', (req, res) => {
 });
 
 // API: Get current user
-app.get('/api/me', (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ error: 'Not logged in.' });
-    db.get('SELECT id, username, email, created_at FROM users WHERE id = ?', [req.session.userId], (err, user) => {
-        if (err || !user) return res.status(401).json({ error: 'Not logged in.' });
-        res.json(user);
-    });
+app.get('/api/me', requireLogin, async (req, res) => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('id, username, email, created_at')
+        .eq('id', req.session.userId)
+        .single();
+    if (error || !data) return res.status(401).json({ error: 'Not logged in.' });
+    res.json(data);
 });
 
 // Start server
