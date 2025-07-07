@@ -1,12 +1,7 @@
-require('dotenv').config();
 
-const bcryt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../data/users.json');
+// --- Auth Controller: Handles login, register, logout, and auth redirect logic ---
 
-const SECRET = 'your_jwt_secret';
-
-// Login/Register logic for Uniplans
+// Helper: login
 async function login(username, password) {
     const res = await fetch('/api/login', {
         method: 'POST',
@@ -17,6 +12,7 @@ async function login(username, password) {
     return await res.json();
 }
 
+// Helper: register
 async function register(username, email, password) {
     const res = await fetch('/api/register', {
         method: 'POST',
@@ -27,7 +23,7 @@ async function register(username, email, password) {
     return await res.json();
 }
 
-// Logout logic
+// Helper: logout
 function setupLogout() {
     document.querySelectorAll('a[href$="login.html"], a.logout').forEach(link => {
         link.addEventListener('click', async (e) => {
@@ -38,17 +34,13 @@ function setupLogout() {
     });
 }
 
-async function checkLoggedIn() {
-    try {
-        const res = await fetch('/api/me');
-        if (res.ok) {
-            window.location.href = '/index.html';
-        }
-    } catch (e) {}
-}
-
+// On DOMContentLoaded, setup all auth logic
 document.addEventListener('DOMContentLoaded', () => {
-    checkLoggedIn();
+    // Redirect to dashboard if already logged in
+    fetch('/api/me').then(res => {
+        if (res.ok) window.location.href = '/index.html';
+    });
+
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const loginSection = document.querySelector('.login-section');
@@ -58,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showRegister = document.getElementById('show-register');
     const showLogin = document.getElementById('show-login');
 
+    // Toggle between login/register
     if (showRegister) showRegister.onclick = (e) => {
         e.preventDefault();
         loginSection.style.display = 'none';
@@ -69,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         registerSection.style.display = 'none';
     };
 
+    // Login form submit
     if (loginForm) loginForm.onsubmit = async (e) => {
         e.preventDefault();
         loginError.textContent = '';
@@ -92,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Register form submit
     if (registerForm) registerForm.onsubmit = async (e) => {
         e.preventDefault();
         registerError.textContent = '';

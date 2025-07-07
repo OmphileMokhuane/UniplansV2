@@ -71,6 +71,24 @@
         </section>
         <div id="toast" class="toast"></div>
     </main>
+    <script type="module">
+    // Redirect to login if not authenticated
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/me');
+            if (!res.ok) {
+                window.location.href = '/pages/login.html';
+            } else {
+                const user = await res.json();
+                // Set username in header
+                document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+            }
+        } catch (e) {
+            window.location.href = '/pages/login.html';
+        }
+    }
+    checkAuth();
+    </script>
     <script type="module" src="./js/dashboard.js"></script>
     <script>
     // Sidebar toggle logic

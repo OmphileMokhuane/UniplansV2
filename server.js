@@ -1,4 +1,3 @@
-// Express server setup for Uniplans
 const express = require('express');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
@@ -15,38 +14,46 @@ const db = new sqlite3.Database(dbPath, (err) => {
         console.error('Failed to connect to database:', err.message);
     } else {
         console.log('Connected to uniplans.db');
-        // Create modules table
+        // Create modules table (add user_id)
         db.run(`CREATE TABLE IF NOT EXISTS modules (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             code TEXT NOT NULL,
             credits INTEGER NOT NULL,
-            semester INTEGER NOT NULL
+            semester INTEGER NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )`);
-        // Create assignments table
+        // Create assignments table (add user_id)
         db.run(`CREATE TABLE IF NOT EXISTS assignments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             module_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             due_date TEXT,
             description TEXT,
-            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE
+            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )`);
-        // Create tests table
+        // Create tests table (add user_id)
         db.run(`CREATE TABLE IF NOT EXISTS tests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             module_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             date TEXT,
             description TEXT,
-            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE
+            FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )`);
-        // Create events table
+        // Create events table (add user_id)
         db.run(`CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             date TEXT NOT NULL,
-            description TEXT
+            description TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )`);
         // Create users table
         db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -71,9 +78,17 @@ app.use(session({
     cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 } // 1 day
 }));
 
-// API: Get all modules
-app.get('/api/modules', (req, res) => {
-    db.all('SELECT * FROM modules', [], (err, rows) => {
+// Middleware: Require login
+function requireLogin(req, res, next) {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not logged in.' });
+    }
+    next();
+}
+
+// API: Get all modules (user only)
+app.get('/api/modules', requireLogin, (req, res) => {
+    db.all('SELECT * FROM modules WHERE user_id = ?', [req.session.userId], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
@@ -84,14 +99,14 @@ app.get('/api/modules', (req, res) => {
 
 // API: Add a new module
 app.use(express.json());
-app.post('/api/modules', (req, res) => {
+app.post('/api/modules', requireLogin, (req, res) => {
     const { name, code, credits, semester } = req.body;
     if (!name || !code || !credits || !semester) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
     db.run(
-        'INSERT INTO modules (name, code, credits, semester) VALUES (?, ?, ?, ?)',
-        [name, code, credits, semester],
+        'INSERT INTO modules (user_id, name, code, credits, semester) VALUES (?, ?, ?, ?, ?)',
+        [req.session.userId, name, code, credits, semester],
         function (err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -103,12 +118,12 @@ app.post('/api/modules', (req, res) => {
 });
 
 // API: Update a module
-app.put('/api/modules/:id', (req, res) => {
+app.put('/api/modules/:id', requireLogin, (req, res) => {
     const { name, code, credits, semester } = req.body;
     const { id } = req.params;
     db.run(
-        'UPDATE modules SET name = ?, code = ?, credits = ?, semester = ? WHERE id = ?',
-        [name, code, credits, semester, id],
+        'UPDATE modules SET name = ?, code = ?, credits = ?, semester = ? WHERE id = ? AND user_id = ?',
+        [name, code, credits, semester, id, req.session.userId],
         function (err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -122,9 +137,9 @@ app.put('/api/modules/:id', (req, res) => {
 });
 
 // API: Delete a module
-app.delete('/api/modules/:id', (req, res) => {
+app.delete('/api/modules/:id', requireLogin, (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM modules WHERE id = ?', [id], function (err) {
+    db.run('DELETE FROM modules WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
         if (err) {
             res.status(500).json({ error: err.message });
         } else if (this.changes === 0) {
@@ -135,10 +150,10 @@ app.delete('/api/modules/:id', (req, res) => {
     });
 });
 
-// API: Get assignments for a module
-app.get('/api/modules/:moduleId/assignments', (req, res) => {
+// API: Get assignments for a module (user only)
+app.get('/api/modules/:moduleId/assignments', requireLogin, (req, res) => {
     const { moduleId } = req.params;
-    db.all('SELECT * FROM assignments WHERE module_id = ?', [moduleId], (err, rows) => {
+    db.all('SELECT * FROM assignments WHERE module_id = ? AND user_id = ?', [moduleId, req.session.userId], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
@@ -147,13 +162,13 @@ app.get('/api/modules/:moduleId/assignments', (req, res) => {
     });
 });
 
-// API: Add assignment to a module
-app.post('/api/modules/:moduleId/assignments', (req, res) => {
+// API: Add assignment to a module (user only)
+app.post('/api/modules/:moduleId/assignments', requireLogin, (req, res) => {
     const { moduleId } = req.params;
     const { title, due_date, description } = req.body;
     db.run(
-        'INSERT INTO assignments (module_id, title, due_date, description) VALUES (?, ?, ?, ?)',
-        [moduleId, title, due_date, description],
+        'INSERT INTO assignments (user_id, module_id, title, due_date, description) VALUES (?, ?, ?, ?, ?)',
+        [req.session.userId, moduleId, title, due_date, description],
         function (err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -164,10 +179,10 @@ app.post('/api/modules/:moduleId/assignments', (req, res) => {
     );
 });
 
-// API: Get tests for a module
-app.get('/api/modules/:moduleId/tests', (req, res) => {
+// API: Get tests for a module (user only)
+app.get('/api/modules/:moduleId/tests', requireLogin, (req, res) => {
     const { moduleId } = req.params;
-    db.all('SELECT * FROM tests WHERE module_id = ?', [moduleId], (err, rows) => {
+    db.all('SELECT * FROM tests WHERE module_id = ? AND user_id = ?', [moduleId, req.session.userId], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
@@ -176,13 +191,13 @@ app.get('/api/modules/:moduleId/tests', (req, res) => {
     });
 });
 
-// API: Add test to a module
-app.post('/api/modules/:moduleId/tests', (req, res) => {
+// API: Add test to a module (user only)
+app.post('/api/modules/:moduleId/tests', requireLogin, (req, res) => {
     const { moduleId } = req.params;
     const { title, date, description } = req.body;
     db.run(
-        'INSERT INTO tests (module_id, title, date, description) VALUES (?, ?, ?, ?)',
-        [moduleId, title, date, description],
+        'INSERT INTO tests (user_id, module_id, title, date, description) VALUES (?, ?, ?, ?, ?)',
+        [req.session.userId, moduleId, title, date, description],
         function (err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -193,10 +208,10 @@ app.post('/api/modules/:moduleId/tests', (req, res) => {
     );
 });
 
-// API: Delete assignment
-app.delete('/api/assignments/:id', (req, res) => {
+// API: Delete assignment (user only)
+app.delete('/api/assignments/:id', requireLogin, (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM assignments WHERE id = ?', [id], function (err) {
+    db.run('DELETE FROM assignments WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
         if (err) {
             res.status(500).json({ error: err.message });
         } else if (this.changes === 0) {
@@ -207,10 +222,10 @@ app.delete('/api/assignments/:id', (req, res) => {
     });
 });
 
-// API: Delete test
-app.delete('/api/tests/:id', (req, res) => {
+// API: Delete test (user only)
+app.delete('/api/tests/:id', requireLogin, (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM tests WHERE id = ?', [id], function (err) {
+    db.run('DELETE FROM tests WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
         if (err) {
             res.status(500).json({ error: err.message });
         } else if (this.changes === 0) {
@@ -221,9 +236,9 @@ app.delete('/api/tests/:id', (req, res) => {
     });
 });
 
-// API: Get all events
-app.get('/api/events', (req, res) => {
-    db.all('SELECT * FROM events', [], (err, rows) => {
+// API: Get all events (user only)
+app.get('/api/events', requireLogin, (req, res) => {
+    db.all('SELECT * FROM events WHERE user_id = ?', [req.session.userId], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
@@ -232,15 +247,15 @@ app.get('/api/events', (req, res) => {
     });
 });
 
-// API: Add a new event
-app.post('/api/events', (req, res) => {
+// API: Add a new event (user only)
+app.post('/api/events', requireLogin, (req, res) => {
     const { title, date, description } = req.body;
     if (!title || !date) {
         return res.status(400).json({ error: 'Title and date are required.' });
     }
     db.run(
-        'INSERT INTO events (title, date, description) VALUES (?, ?, ?)',
-        [title, date, description],
+        'INSERT INTO events (user_id, title, date, description) VALUES (?, ?, ?, ?)',
+        [req.session.userId, title, date, description],
         function (err) {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -251,10 +266,10 @@ app.post('/api/events', (req, res) => {
     );
 });
 
-// API: Delete an event
-app.delete('/api/events/:id', (req, res) => {
+// API: Delete an event (user only)
+app.delete('/api/events/:id', requireLogin, (req, res) => {
     const { id } = req.params;
-    db.run('DELETE FROM events WHERE id = ?', [id], function (err) {
+    db.run('DELETE FROM events WHERE id = ? AND user_id = ?', [id, req.session.userId], function (err) {
         if (err) {
             res.status(500).json({ error: err.message });
         } else if (this.changes === 0) {
@@ -302,6 +317,36 @@ app.post('/api/login', (req, res) => {
         }
         req.session.userId = user.id;
         res.json({ id: user.id, username: user.username, email: user.email });
+    });
+});
+
+// API: Change password (user only)
+app.post('/api/change-password', requireLogin, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: 'Both old and new password are required.' });
+    }
+    db.get('SELECT * FROM users WHERE id = ?', [req.session.userId], async (err, user) => {
+        if (err || !user) return res.status(400).json({ error: 'User not found.' });
+        const match = await bcrypt.compare(oldPassword, user.password_hash);
+        if (!match) return res.status(401).json({ error: 'Old password is incorrect.' });
+        const hash = await bcrypt.hash(newPassword, 10);
+        db.run('UPDATE users SET password_hash = ? WHERE id = ?', [hash, req.session.userId], function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true });
+        });
+    });
+});
+
+// API: Delete account (user only)
+app.post('/api/delete-account', requireLogin, (req, res) => {
+    db.run('DELETE FROM users WHERE id = ?', [req.session.userId], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        req.session.destroy(() => {
+            res.clearCookie('connect.sid');
+            // Send redirect instruction to login page
+            res.json({ success: true, redirect: '/pages/login.html' });
+        });
     });
 });
 
