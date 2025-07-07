@@ -1,4 +1,36 @@
+
+// Redirect to login if not authenticated and set username in header
+async function checkAuthAndSetUser() {
+    try {
+        const res = await fetch('/api/me');
+        if (!res.ok) {
+            window.location.href = '/pages/login.html';
+        } else {
+            const user = await res.json();
+            document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+        }
+    } catch (e) {
+        window.location.href = '/pages/login.html';
+    }
+}
+checkAuthAndSetUser();
+
 import { fetchModules, fetchAssignments, fetchTests } from './app.js';
+
+async function fetchMotivationalQuote() {
+    try {
+        const res = await fetch('https://api.realinspire.live/v1/quotes/random');
+        if (!res.ok) throw new Error('Failed to fetch quote');
+        const data = await res.json();
+        if (data && data.quote && data.author) {
+            document.getElementById('dashboard-quote').textContent = `“${data.quote}” — ${data.author}`;
+        } else {
+            document.getElementById('dashboard-quote').textContent = 'Stay motivated and keep learning!';
+        }
+    } catch (e) {
+        document.getElementById('dashboard-quote').textContent = 'Stay motivated and keep learning!';
+    }
+}
 
 function getNext7Days() {
     const days = [];
@@ -118,11 +150,55 @@ function renderSimpleUpcomingList(container, items, type) {
     });
 }
 
+function renderNextDeadline(assignments, tests) {
+    const all = [
+        ...assignments.map(a => ({ ...a, type: 'Assignment', date: a.due_date })),
+        ...tests.map(t => ({ ...t, type: 'Test', date: t.date }))
+    ].filter(item => item.date);
+    all.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const next = all.find(item => new Date(item.date) >= new Date());
+    const el = document.getElementById('dashboard-deadline');
+    if (next) {
+        el.innerHTML = `<b>Next Deadline:</b> ${next.type} <b>${next.title}</b> (${next.module.name})<br>
+          <span style='color:#b26a00;'>Due: ${next.date}</span>`;
+    } else {
+        el.textContent = 'No upcoming deadlines!';
+    }
+}
+
+function renderTodaySchedule(assignments, tests) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayAssignments = assignments.filter(a => a.due_date === todayStr);
+    const todayTests = tests.filter(t => t.date === todayStr);
+    const el = document.getElementById('dashboard-today');
+    let html = '<div class="dashboard-day-header">Today’s Schedule</div>';
+    if (!todayAssignments.length && !todayTests.length) {
+        html += '<div class="dashboard-day-empty">No assignments or tests due today.</div>';
+    } else {
+        if (todayAssignments.length) {
+            html += '<div class="dashboard-day-title">Assignments</div><ul class="dashboard-day-list">' +
+                todayAssignments.map(a => `<li><b>${a.title}</b> <span style='color:#888;'>(${a.module.name})</span></li>`).join('') +
+                '</ul>';
+        }
+        if (todayTests.length) {
+            html += '<div class="dashboard-day-title">Tests/Quizzes</div><ul class="dashboard-day-list">' +
+                todayTests.map(t => `<li><b>${t.title}</b> <span style='color:#888;'>(${t.module.name})</span></li>`).join('') +
+                '</ul>';
+        }
+    }
+    el.innerHTML = html;
+}
+
+
 window.addEventListener('DOMContentLoaded', async () => {
+    await fetchMotivationalQuote();
     // Assignments & Tests (7-day grouped)
     const container = document.getElementById('list-assignments');
     const { byDate, assignments, tests } = await getItemsByDate();
     render7DayAssignmentsTests(container, byDate);
+    renderNextDeadline(assignments, tests);
+    renderTodaySchedule(assignments, tests);
+    // Mini calendar removed
     // Tests (flat upcoming)
     const testsCard = document.getElementById('card-tests');
     if (testsCard) {

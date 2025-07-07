@@ -11,12 +11,6 @@
     <div class="login-container">
         <div class="login-logo">Uniplans</div>
         <main>
-            <header style="width:100%; display:flex; justify-content:flex-end;"> 
-                <div class="user">
-                    <i class="fas fa-user"></i>
-                    <span class="username">John Doe</span>
-                </div>
-            </header>
             <section class="login-section">
                 <h2>Login</h2>
                 <form id="login-form">
@@ -55,6 +49,12 @@
             </section>
         </main>
     </div>
+    <script type="module">
+    // If already logged in, redirect to home
+    fetch('/api/me').then(res => {
+        if (res.ok) window.location.href = '/index.html';
+    });
+    </script>
     <script type="module" src="../js/authController.js"></script>
 </body>
 </html>
