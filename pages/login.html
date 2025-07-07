@@ -15,8 +15,8 @@
                 <h2>Login</h2>
                 <form id="login-form">
                     <div class="form-group">
-                        <label for="login-username">Username or Email:</label>
-                        <input type="text" id="login-username" name="username" required autocomplete="username">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" name="email" required autocomplete="email">
                     </div>
                     <div class="form-group">
                         <label for="login-password">Password:</label>
@@ -51,9 +51,33 @@
     </div>
     <script type="module">
     // If already logged in, redirect to home
-    fetch('/api/me').then(res => {
-        if (res.ok) window.location.href = '/index.html';
-    });
+    fetch('/api/me')
+        .then(res => {
+            if (res.status === 401) {
+                // do nothing, user is not logged in
+            } else if (res.ok) {
+                window.location.href = '/index.html';
+            }
+        });
+    // Show session expired message if present
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'expired') {
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            loginError.textContent = 'Your session has expired. Please log in again.';
+        }
+    }
+    // Setup logout handler for all logout links
+    function setupLogout() {
+        document.querySelectorAll('a[href$="login.html"], a.logout').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/pages/login.html';
+            });
+        });
+    }
+    setupLogout();
     </script>
     <script type="module" src="../js/authController.js"></script>
 </body>

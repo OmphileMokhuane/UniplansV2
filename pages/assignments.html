@@ -79,6 +79,46 @@
         
         <div id="toast" class="toast"></div>
     </main>
+    <script type="module">
+    // Redirect to login if not authenticated
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/me');
+            if (res.status === 401) {
+                window.location.href = '/pages/login.html?session=expired';
+                return;
+            }
+            if (!res.ok) {
+                window.location.href = '/pages/login.html';
+            } else {
+                const user = await res.json();
+                document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+            }
+        } catch (e) {
+            window.location.href = '/pages/login.html?session=expired';
+        }
+    }
+    checkAuth();
+    // Show session expired message if present
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'expired') {
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            loginError.textContent = 'Your session has expired. Please log in again.';
+        }
+    }
+    // Setup logout handler for all logout links
+    function setupLogout() {
+        document.querySelectorAll('a[href$="login.html"], a.logout').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/pages/login.html';
+            });
+        });
+    }
+    setupLogout();
+    </script>
     <script>
     // Sidebar toggle logic
     const sidebarToggle = document.getElementById('sidebar-toggle');

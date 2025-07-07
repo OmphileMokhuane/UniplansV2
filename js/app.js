@@ -8,7 +8,9 @@ export async function fetchModules() {
 export async function addModule(module) {
     const res = await fetch('/api/modules', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(module)
     });
     if (!res.ok) throw new Error('Failed to add module');
@@ -18,7 +20,9 @@ export async function addModule(module) {
 export async function updateModule(id, module) {
     const res = await fetch(`/api/modules/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(module)
     });
     if (!res.ok) throw new Error('Failed to update module');
@@ -43,7 +47,9 @@ export async function fetchAssignments(moduleId) {
 export async function addAssignment(moduleId, assignment) {
     const res = await fetch(`/api/modules/${moduleId}/assignments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(assignment)
     });
     if (!res.ok) throw new Error('Failed to add assignment');
@@ -68,7 +74,9 @@ export async function fetchTests(moduleId) {
 export async function addTest(moduleId, test) {
     const res = await fetch(`/api/modules/${moduleId}/tests`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(test)
     });
     if (!res.ok) throw new Error('Failed to add test');

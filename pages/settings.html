@@ -64,23 +64,47 @@
         </section>
     </main>
     <script type="module">
-    // Auth check and user info
-    async function loadUser() {
+    // Redirect to login if not authenticated
+    async function checkAuth() {
         try {
             const res = await fetch('/api/me');
-            if (!res.ok) {
-                window.location.href = '/pages/login.html';
+            if (res.status === 401) {
+                window.location.href = '/pages/login.html?session=expired';
                 return;
             }
-            const user = await res.json();
-            document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
-            document.getElementById('settings-username').value = user.username;
-            document.getElementById('settings-email').value = user.email;
+            if (!res.ok) {
+                window.location.href = '/pages/login.html';
+            } else {
+                const user = await res.json();
+                document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+                // Set username and email in the form fields
+                document.getElementById('settings-username').value = user.username || '';
+                document.getElementById('settings-email').value = user.email || '';
+            }
         } catch (e) {
-            window.location.href = '/pages/login.html';
+            window.location.href = '/pages/login.html?session=expired';
         }
     }
-    loadUser();
+    checkAuth();
+    // Show session expired message if present
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'expired') {
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            loginError.textContent = 'Your session has expired. Please log in again.';
+        }
+    }
+    // Setup logout handler for all logout links
+    function setupLogout() {
+        document.querySelectorAll('a[href$="login.html"], a.logout').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/pages/login.html';
+            });
+        });
+    }
+    setupLogout();
 
 
     // Password update logic

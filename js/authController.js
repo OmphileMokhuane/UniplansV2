@@ -2,14 +2,25 @@
 // --- Auth Controller: Handles login, register, logout, and auth redirect logic ---
 
 // Helper: login
-async function login(username, password) {
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    if (!res.ok) throw new Error((await res.json()).error || 'Login failed');
-    return await res.json();
+async function login(email, password) {
+    let res;
+    try {
+        res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+    } catch (networkErr) {
+        throw new Error('Network error. Please try again.');
+    }
+    let data;
+    try {
+        data = await res.json();
+    } catch (jsonErr) {
+        throw new Error('Unexpected server response. Please try again.');
+    }
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    return data;
 }
 
 // Helper: register
@@ -37,9 +48,8 @@ function setupLogout() {
 // On DOMContentLoaded, setup all auth logic
 document.addEventListener('DOMContentLoaded', () => {
     // Redirect to dashboard if already logged in
-    fetch('/api/me').then(res => {
-        if (res.ok) window.location.href = '/index.html';
-    });
+    fetch('/api/me')
+        .then(res => { if (res.ok) window.location.href = '/index.html'; });
 
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
@@ -66,22 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) loginForm.onsubmit = async (e) => {
         e.preventDefault();
         loginError.textContent = '';
-        const username = loginForm['login-username'].value;
+        const email = loginForm['login-email'] ? loginForm['login-email'].value : loginForm['login-username'].value;
         const password = loginForm['login-password'].value;
         try {
             // Try login
-            await login(username, password);
+            await login(email, password);
             window.location.href = '/index.html';
         } catch (err) {
-            // If admin login, try auto-register admin
-            if (username === 'admin1' && password === 'admin123!') {
-                try {
-                    await register('admin1', 'admin@admin.com', 'admin123!');
-                    await login('admin1', 'admin123!');
-                    window.location.href = '/index.html';
-                    return;
-                } catch (e) {}
-            }
             loginError.textContent = err.message;
         }
     };
@@ -104,4 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     setupLogout();
+});
+
+// Add a user-facing message for session expiry
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'expired') {
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            loginError.textContent = 'Your session has expired. Please log in again.';
+        }
+    }
 });

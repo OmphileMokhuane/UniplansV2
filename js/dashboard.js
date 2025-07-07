@@ -17,20 +17,29 @@ checkAuthAndSetUser();
 
 import { fetchModules, fetchAssignments, fetchTests } from './app.js';
 
-async function fetchMotivationalQuote() {
+// Fetch and display a motivational quote from ZenQuotes (via backend proxy)
+async function loadMotivationalQuote() {
     try {
-        const res = await fetch('https://api.realinspire.live/v1/quotes/random');
-        if (!res.ok) throw new Error('Failed to fetch quote');
+        const res = await fetch('/api/motivation');
         const data = await res.json();
-        if (data && data.quote && data.author) {
-            document.getElementById('dashboard-quote').textContent = `“${data.quote}” — ${data.author}`;
-        } else {
-            document.getElementById('dashboard-quote').textContent = 'Stay motivated and keep learning!';
+        if (Array.isArray(data) && data[0]) {
+            const quote = data[0].q;
+            const author = data[0].a;
+            const quoteEl = document.getElementById('dashboard-quote');
+            if (quoteEl) {
+                quoteEl.textContent = `"${quote}" — ${author}`;
+            }
         }
     } catch (e) {
-        document.getElementById('dashboard-quote').textContent = 'Stay motivated and keep learning!';
+        const quoteEl = document.getElementById('dashboard-quote');
+        if (quoteEl) {
+            quoteEl.textContent = 'Stay motivated and have a great day!';
+        }
     }
 }
+
+// Call on page load
+loadMotivationalQuote();
 
 function getNext7Days() {
     const days = [];
@@ -191,7 +200,6 @@ function renderTodaySchedule(assignments, tests) {
 
 
 window.addEventListener('DOMContentLoaded', async () => {
-    await fetchMotivationalQuote();
     // Assignments & Tests (7-day grouped)
     const container = document.getElementById('list-assignments');
     const { byDate, assignments, tests } = await getItemsByDate();
