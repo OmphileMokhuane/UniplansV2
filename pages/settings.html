@@ -33,15 +33,112 @@
         <header style="width:100%; display:flex; justify-content:flex-end;"> 
             <div class="user">
                 <i class="fas fa-user"></i>
-                <span class="username">John Doe</span>
+                <span class="username">Loading...</span>
             </div>
         </header>
-        <section>
+        <section class="settings-section">
             <h2>Settings</h2>
-            <p>This is the settings page.</p>
+            <form id="settings-form" style="max-width:400px; margin-top:2rem;">
+                <div class="form-group">
+                    <label for="settings-username">Username</label>
+                    <input type="text" id="settings-username" name="username" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="settings-email">Email</label>
+                    <input type="email" id="settings-email" name="email" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="settings-old-password">Current Password</label>
+                    <input type="password" id="settings-old-password" name="old-password" placeholder="Current password">
+                </div>
+                <div class="form-group">
+                    <label for="settings-password">New Password</label>
+                    <input type="password" id="settings-password" name="password" placeholder="New password">
+                </div>
+                <button class="btn" type="submit">Update Password</button>
+                <div id="settings-message" style="margin-top:1rem;"></div>
+            </form>
+            <hr style="margin:2rem 0;">
+            <button class="btn" id="delete-account-btn" style="background:#c00;">Delete Account</button>
+            <div id="delete-message" style="margin-top:1rem;"></div>
         </section>
     </main>
-    <script>
+    <script type="module">
+    // Auth check and user info
+    async function loadUser() {
+        try {
+            const res = await fetch('/api/me');
+            if (!res.ok) {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+            const user = await res.json();
+            document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+            document.getElementById('settings-username').value = user.username;
+            document.getElementById('settings-email').value = user.email;
+        } catch (e) {
+            window.location.href = '/pages/login.html';
+        }
+    }
+    loadUser();
+
+
+    // Password update logic
+    document.getElementById('settings-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const oldPassword = document.getElementById('settings-old-password').value;
+        const newPassword = document.getElementById('settings-password').value;
+        const msg = document.getElementById('settings-message');
+        msg.textContent = '';
+        if (!oldPassword || !newPassword) {
+            msg.style.color = '#c00';
+            msg.textContent = 'Please enter both current and new password.';
+            return;
+        }
+        try {
+            const res = await fetch('/api/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldPassword, newPassword })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                msg.style.color = '#c00';
+                msg.textContent = data.error || 'Failed to update password.';
+            } else {
+                msg.style.color = 'green';
+                msg.textContent = 'Password updated successfully!';
+                document.getElementById('settings-old-password').value = '';
+                document.getElementById('settings-password').value = '';
+            }
+        } catch (e) {
+            msg.style.color = '#c00';
+            msg.textContent = 'Failed to update password.';
+        }
+    };
+
+    // Delete account logic
+    document.getElementById('delete-account-btn').onclick = async () => {
+        if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+        const msg = document.getElementById('delete-message');
+        msg.textContent = '';
+        try {
+            const res = await fetch('/api/delete-account', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) {
+                msg.style.color = '#c00';
+                msg.textContent = data.error || 'Failed to delete account.';
+            } else {
+                msg.style.color = 'green';
+                msg.textContent = 'Account deleted. Redirecting...';
+                setTimeout(() => { window.location.href = '/pages/login.html'; }, 1500);
+            }
+        } catch (e) {
+            msg.style.color = '#c00';
+            msg.textContent = 'Failed to delete account.';
+        }
+    };
+
     // Sidebar toggle logic
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');

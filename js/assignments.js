@@ -44,6 +44,23 @@ function renderAssignments(assignments) {
 	});
 }
 
+
+// Redirect to login if not authenticated and set username in header
+async function checkAuthAndSetUser() {
+	try {
+		const res = await fetch('/api/me');
+		if (!res.ok) {
+			window.location.href = '/pages/login.html';
+		} else {
+			const user = await res.json();
+			document.querySelectorAll('.username').forEach(el => el.textContent = user.username);
+		}
+	} catch (e) {
+		window.location.href = '/pages/login.html';
+	}
+}
+checkAuthAndSetUser();
+
 async function loadAssignments() {
 	if (!currentModuleId) return;
 	try {
@@ -55,7 +72,7 @@ async function loadAssignments() {
 }
 
 async function loadModules() {
-  	try {
+	try {
 		const modules = await fetchModules();
 		modulesList = modules;
 		moduleSelect.innerHTML = '';
@@ -69,15 +86,15 @@ async function loadModules() {
 		option2.value = m.id;
 		option2.textContent = m.name;
 		assignmentModuleSelect.appendChild(option2);
-    });
-    if (modules.length > 0) {
+	});
+	if (modules.length > 0) {
 		currentModuleId = modules[0].id;
 		moduleSelect.value = currentModuleId;
 		assignmentModuleSelect.value = currentModuleId;
 		loadAssignments();
-    }
+	}
   } catch (err) {
-    alert('Failed to load modules: ' + err.message);
+	alert('Failed to load modules: ' + err.message);
   }
 }
 
@@ -96,31 +113,31 @@ assignmentForm.addEventListener('submit', async (e) => {
   const selectedModuleId = assignmentModuleSelect.value;
   if (!selectedModuleId) return;
   const assignment = {
-    title: assignmentForm['assignment-title'].value,
-    due_date: assignmentForm['assignment-due-date'].value,
-    description: assignmentForm['assignment-description'].value
+	title: assignmentForm['assignment-title'].value,
+	due_date: assignmentForm['assignment-due-date'].value,
+	description: assignmentForm['assignment-description'].value
   };
   try {
-    await addAssignment(selectedModuleId, assignment);
-    assignmentForm.reset();
-    assignmentModuleSelect.value = currentModuleId;
-    if (selectedModuleId === currentModuleId) loadAssignments();
+	await addAssignment(selectedModuleId, assignment);
+	assignmentForm.reset();
+	assignmentModuleSelect.value = currentModuleId;
+	if (selectedModuleId === currentModuleId) loadAssignments();
   } catch (err) {
-    alert('Failed to add assignment: ' + err.message);
+	alert('Failed to add assignment: ' + err.message);
   }
 });
 
 assignmentsTableBody.addEventListener('click', async (e) => {
   if (e.target.classList.contains('delete-btn')) {
-    const id = e.target.dataset.id;
-    if (confirm('Are you sure you want to delete this assignment?')) {
-      try {
-        await deleteAssignment(id);
-        loadAssignments();
-      } catch (err) {
-        alert('Failed to delete assignment: ' + err.message);
-      }
-    }
+	const id = e.target.dataset.id;
+	if (confirm('Are you sure you want to delete this assignment?')) {
+	  try {
+		await deleteAssignment(id);
+		loadAssignments();
+	  } catch (err) {
+		alert('Failed to delete assignment: ' + err.message);
+	  }
+	}
   }
 });
 
