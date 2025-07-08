@@ -149,7 +149,7 @@ function renderSimpleUpcomingList(container, items, type) {
     items.slice(0, 7).forEach(item => {
         let text = '';
         if (type === 'tests') {
-            text = `<b>${item.title}</b> <span style='color:#888;'>(${item.module.name})</span> <small>${item.date}</small>`;
+            text = `</br>${item.title}</br> <span style='color:#888;'>(${item.module.name})</span> <small>${item.date}</small>`;
         } else if (type === 'events') {
             text = `<b>${item.title}</b> <small>${item.date}</small>`;
         }
@@ -168,7 +168,7 @@ function renderNextDeadline(assignments, tests) {
     const next = all.find(item => new Date(item.date) >= new Date());
     const el = document.getElementById('dashboard-deadline');
     if (next) {
-        el.innerHTML = `<b>Next Deadline:</b> ${next.type} <b>${next.title}</b> (${next.module.name})<br>
+        el.innerHTML = `</br>Next Deadline: </br> ${next.type} </br>${next.title}</br> (${next.module.name})</br>
           <span style='color:#b26a00;'>Due: ${next.date}</span>`;
     } else {
         el.textContent = 'No upcoming deadlines!';
