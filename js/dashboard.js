@@ -168,7 +168,7 @@ function renderNextDeadline(assignments, tests) {
     const next = all.find(item => new Date(item.date) >= new Date());
     const el = document.getElementById('dashboard-deadline');
     if (next) {
-        el.innerHTML = `</br>Next Deadline: </br> ${next.type} </br>${next.title}</br> (${next.module.name})</br>
+        el.innerHTML = `<b>Next Deadline: [${next.type}]  ${next.title} - ${next.module.name}</b>
           <span style='color:#b26a00;'>Due: ${next.date}</span>`;
     } else {
         el.textContent = 'No upcoming deadlines!';
